@@ -7,6 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface XsalgovicPatientCard {
+        "apiBase": string;
     }
 }
 declare global {
@@ -22,6 +23,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface XsalgovicPatientCard {
+        "apiBase"?: string;
     }
     interface IntrinsicElements {
         "xsalgovic-patient-card": XsalgovicPatientCard;
