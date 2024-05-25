@@ -1,3 +1,55 @@
 :host {
   display: block;
 }
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+md-outlined-card {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  padding: 16px;
+  border-radius: 2px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  display: block;
+  margin-bottom: 16px;
+}
+
+select {
+  display: block;
+  margin-top: 8px;
+  padding: 8px;
+  font-size: 16px;
+  width: 100%;
+}
+
+h2,
+h3 {
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+p {
+  margin: 8px 0;
+}
+
+.add-button {
+  position: absolute;
+  right: 1rem;
+  bottom: 0;
+}
