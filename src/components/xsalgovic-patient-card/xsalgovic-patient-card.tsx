@@ -102,7 +102,7 @@ export class XsalgovicPatientCard {
                             <strong>Status:</strong> {status.description}
                           </p>
                           <p slot="supporting-text">
-                            Timestamp: {status.timestamp}
+                            Timestamp: {new Date(status.timestamp).toLocaleString()}
                           </p>
                           <md-icon slot="start">beenhere</md-icon>
                         </md-item>
@@ -128,7 +128,7 @@ export class XsalgovicPatientCard {
                             Ambulance: {visit.ambulance.name}
                           </p>
                           <p slot="supporting-text">
-                            Timestamp: {visit.timestamp}
+                            Timestamp: {new Date(visit.timestamp).toLocaleString()}
                           </p>
                           <md-icon slot="start">360</md-icon>
                         </md-item>
