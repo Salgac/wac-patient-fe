@@ -21,7 +21,7 @@ export class XsalgovicConditionDialog {
   async handleSubmit(event: Event) {
     event.preventDefault();
 
-    if (event.type != "submit") {
+    if (event.type != "submit" && this.description != "") {
       const newCondition: HealthCondition = {
         timestamp: new Date().toISOString(),
         description: this.description,

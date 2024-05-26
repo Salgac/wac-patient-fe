@@ -11,6 +11,7 @@ interface Visit {
   ambulance: Ambulance;
   timestamp: string;
   reason: string;
+  status: string;
 }
 
 interface Ambulance {
