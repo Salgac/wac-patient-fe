@@ -9,9 +9,10 @@ export class XsalgovicPatientCard {
   @Prop() apiBase: string;
 
   @State() private patients: Patient[] = [];
-  @State() private ambulances: Ambulance[] = [];
-
   @State() selectedPatient: Patient;
+
+  @State() visitDialogOpen: boolean = false;
+  @State() conditionDialogOpen: boolean = false;
 
   //
   private getPatientsFromApi = async () => {
@@ -22,19 +23,12 @@ export class XsalgovicPatientCard {
     this.selectedPatient = this.patients[0];
   };
 
-  private getAmbulancesFromApi = async () => {
-    const response = await fetch(this.apiBase + "/ambulances");
-    const result = await response.json();
-
-    this.ambulances = result as Ambulance[];
-  };
-
   //
   async componentWillLoad() {
     this.getPatientsFromApi();
-    this.getAmbulancesFromApi();
   }
 
+  //
   handleSelectChange(event: Event) {
     this.selectedPatient = this.patients.find(
       (p) => p.id == (event.target as HTMLSelectElement).value,
@@ -42,12 +36,18 @@ export class XsalgovicPatientCard {
     );
   }
 
-  handleConditionAdd(event: Event) {
-    //todo
+  //
+  handleConditionAdd(_event: Event) {
+    this.conditionDialogOpen = true;
   }
 
-  handleVisitAdd(event: Event) {
-    //todo
+  handleVisitAdd(_event: Event) {
+    this.visitDialogOpen = true;
+  }
+
+  handleClose() {
+    this.conditionDialogOpen = false;
+    this.visitDialogOpen = false;
   }
 
   //
@@ -145,6 +145,19 @@ export class XsalgovicPatientCard {
               )}
             </div>
           </md-outlined-card>
+
+          <xsalgovic-visit-dialog
+            apiBase={this.apiBase}
+            dialogOpen={this.visitDialogOpen}
+            patient={this.selectedPatient}
+            close={() => this.handleClose()}
+          ></xsalgovic-visit-dialog>
+          <xsalgovic-condition-dialog
+            apiBase={this.apiBase}
+            dialogOpen={this.conditionDialogOpen}
+            patient={this.selectedPatient}
+            close={() => this.handleClose()}
+          ></xsalgovic-condition-dialog>
         </div>
       </Host>
     );
