@@ -10,13 +10,10 @@ export class XsalgovicVisitDialog {
 
   @Prop() dialogOpen: boolean;
   @Prop() patient: Patient;
+  @Prop() visit: Visit;
   @Event() @Prop() close: () => void;
 
   @State() private ambulances: Ambulance[] = [];
-
-  @State() private timestamp: string;
-  @State() private reason: string;
-  @State() private ambulance: Ambulance;
 
   private getAmbulancesFromApi = async () => {
     const response = await fetch(this.apiBase + "/ambulances");
@@ -27,71 +24,148 @@ export class XsalgovicVisitDialog {
 
   async componentWillLoad() {
     this.getAmbulancesFromApi();
-    this.ambulance = this.ambulances[0];
-    this.timestamp = this.getMinDateTime()
+
+    this.visit.timestamp = this.getMinDateTime();
+  }
+
+  handleClose() {
+    this.visit = {
+      ambulance: { id: "", name: "" },
+      timestamp: this.getMinDateTime(),
+      reason: "",
+      status: "",
+    };
+    this.close();
   }
 
   handleTimestampChange(event: Event) {
-    this.timestamp = (event.target as HTMLInputElement).value;
+    this.visit.timestamp = (event.target as HTMLInputElement).value;
   }
 
   handleReasonChange(event: Event) {
-    this.reason = (event.target as HTMLInputElement).value;
+    this.visit.reason = (event.target as HTMLInputElement).value;
   }
 
   handleAmbulanceChange(event: Event) {
-    this.ambulance = this.ambulances.find(
+    this.visit.ambulance = this.ambulances.find(
       (a) => a.id == (event.target as HTMLSelectElement).value
     );
   }
 
-  async handleSubmit(event: Event) {
-    event.preventDefault();
+  async sendNew() {
+    const newVisit: Visit = {
+      ambulance: this.visit.ambulance ?? this.ambulances[0],
+      timestamp: this.visit.timestamp,
+      reason: this.visit.reason,
+      status: "requested",
+    };
+    this.patient.visits.push(newVisit);
 
-    if (event.type != "submit" && this.reason != "") {
-      const newVisit: Visit = {
-        ambulance: this.ambulance ?? this.ambulances[0],
-        timestamp: this.timestamp,
-        reason: this.reason,
-        status: "requested",
-      };
-      this.patient.visits.push(newVisit);
+    // send to api
+    try {
+      await fetch(this.apiBase + "/patients/" + this.patient.id + "/visits", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+        body: JSON.stringify(newVisit),
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      return;
+    }
+  }
 
-      // send to api
-      try {
-        await fetch(this.apiBase + "/patients/" + this.patient.id + "/visits", {
-          method: "POST",
-          mode: "no-cors",
+  async updateExisting() {
+    // send to api
+    try {
+      await fetch(
+        this.apiBase +
+          "/patients/" +
+          this.patient.id +
+          "/visits/" +
+          this.visit.id,
+        {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type",
           },
-          body: JSON.stringify(newVisit),
-        });
-      } catch (error) {
-        console.error("Error:", error);
-        return;
+          body: JSON.stringify(this.visit),
+        }
+      );
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  async handleSubmit(event: Event) {
+    event.preventDefault();
+
+    if (event.type != "submit" && this.visit.reason != "") {
+      // handle update or post
+      if (this.visit.status != "") {
+        this.updateExisting();
+      } else {
+        this.sendNew();
       }
     }
 
     // reset
-    this.reason = "";
-    this.close();
+    this.visit.reason = "";
+    this.handleClose();
+  }
+
+  async handleDelete(event: Event) {
+    event.preventDefault();
+
+    this.patient.visits = this.patient.visits.filter(
+      (v) => v.id != this.visit.id
+    );
+
+    // send to api
+    try {
+      await fetch(
+        this.apiBase +
+          "/patients/" +
+          this.patient.id +
+          "/visits/" +
+          this.visit.id,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+          },
+          body: JSON.stringify(this.visit),
+        }
+      );
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
+    // reset
+    this.visit.reason = "";
+    this.handleClose();
   }
 
   render() {
     return (
       <div>
         <form onSubmit={(event) => this.handleSubmit(event)}>
-          <md-dialog open={this.dialogOpen} onClosed={() => this.close()}>
+          <md-dialog open={this.dialogOpen} onClosed={() => this.handleClose()}>
             <div slot="headline">Condition</div>
             <div slot="content">
               <md-filled-text-field
                 label="Reason"
                 required
-                value={this.reason}
-                onInput={(event) => this.handleReasonChange(event)}
+                value={this.visit.reason}
+                onInput={(event: Event) => this.handleReasonChange(event)}
               ></md-filled-text-field>
 
               <label>
@@ -100,9 +174,8 @@ export class XsalgovicVisitDialog {
                   type="datetime-local"
                   min={this.getMinDateTime()}
                   max="2024-12-31T23:59"
-                  value={this.timestamp}
+                  value={this.visit.timestamp}
                   onInput={(event) => this.handleTimestampChange(event)}
-                  required
                 ></input>
               </label>
 
@@ -116,14 +189,19 @@ export class XsalgovicVisitDialog {
               </label>
             </div>
             <div slot="actions">
-              <md-filled-button onClick={() => this.close()}>
+              <md-filled-button onClick={() => this.handleClose()}>
                 Close
               </md-filled-button>
+              {this.visit.status != "" && (
+                <md-filled-button onClick={(e: Event) => this.handleDelete(e)}>
+                  Delete
+                </md-filled-button>
+              )}
               <md-filled-button
                 onClick={(e: Event) => this.handleSubmit(e)}
                 type="submit"
               >
-                Request Visit
+                {this.visit.status == "" ? "Request Visit" : "Update Visit"}
               </md-filled-button>
             </div>
           </md-dialog>

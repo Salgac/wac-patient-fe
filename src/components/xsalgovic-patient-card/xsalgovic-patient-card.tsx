@@ -11,6 +11,13 @@ export class XsalgovicPatientCard {
   @State() private patients: Patient[] = [];
   @State() selectedPatient: Patient;
 
+  @State() selectedVisit: Visit = {
+    ambulance: { id: "", name: "" },
+    timestamp: "",
+    reason: "",
+    status: "",
+  };
+
   @State() visitDialogOpen: boolean = false;
   @State() conditionDialogOpen: boolean = false;
 
@@ -42,6 +49,11 @@ export class XsalgovicPatientCard {
   }
 
   handleVisitAdd(_event: Event) {
+    this.visitDialogOpen = true;
+  }
+
+  openVisitForm(visit: Visit) {
+    this.selectedVisit = visit;
     this.visitDialogOpen = true;
   }
 
@@ -102,7 +114,8 @@ export class XsalgovicPatientCard {
                             <strong>Status:</strong> {status.description}
                           </p>
                           <p slot="supporting-text">
-                            Timestamp: {new Date(status.timestamp).toLocaleString()}
+                            Timestamp:{" "}
+                            {new Date(status.timestamp).toLocaleString()}
                           </p>
                           <md-icon slot="start">beenhere</md-icon>
                         </md-item>
@@ -120,7 +133,10 @@ export class XsalgovicPatientCard {
                     <h3>Visits</h3>
                     <md-list>
                       {this.selectedPatient.visits.map((visit) => (
-                        <md-item>
+                        <md-list-item
+                          type="button"
+                          onClick={() => this.openVisitForm(visit)}
+                        >
                           <p slot="headline">
                             <strong>Visit: {visit.reason}</strong>
                           </p>
@@ -128,10 +144,11 @@ export class XsalgovicPatientCard {
                             Ambulance: {visit.ambulance.name}
                           </p>
                           <p slot="supporting-text">
-                            Timestamp: {new Date(visit.timestamp).toLocaleString()}
+                            Timestamp:{" "}
+                            {new Date(visit.timestamp).toLocaleString()}
                           </p>
                           <md-icon slot="start">360</md-icon>
-                        </md-item>
+                        </md-list-item>
                       ))}
                       <md-filled-icon-button
                         class="add-button"
@@ -150,6 +167,7 @@ export class XsalgovicPatientCard {
             apiBase={this.apiBase}
             dialogOpen={this.visitDialogOpen}
             patient={this.selectedPatient}
+            visit={this.selectedVisit}
             close={() => this.handleClose()}
           ></xsalgovic-visit-dialog>
           <xsalgovic-condition-dialog

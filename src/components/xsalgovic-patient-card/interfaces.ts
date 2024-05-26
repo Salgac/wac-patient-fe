@@ -8,6 +8,7 @@ interface Patient {
 }
 
 interface Visit {
+  id?: string;
   ambulance: Ambulance;
   timestamp: string;
   reason: string;

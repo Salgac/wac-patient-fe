@@ -20,6 +20,7 @@ export namespace Components {
         "close": () => void;
         "dialogOpen": boolean;
         "patient": Patient;
+        "visit": Visit;
     }
 }
 export interface XsalgovicConditionDialogCustomEvent<T> extends CustomEvent<T> {
@@ -94,6 +95,7 @@ declare namespace LocalJSX {
         "dialogOpen"?: boolean;
         "onClose"?: (event: XsalgovicVisitDialogCustomEvent<any>) => void;
         "patient"?: Patient;
+        "visit"?: Visit;
     }
     interface IntrinsicElements {
         "xsalgovic-condition-dialog": XsalgovicConditionDialog;
