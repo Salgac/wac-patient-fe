@@ -72,6 +72,11 @@ export class XsalgovicPatientCard {
               <h1>Patient card</h1>
               {/* <md-circular-progress indeterminate></md-circular-progress> */}
 
+              {this.patients.length == 0 && (
+                <h2 id="error">No DB connection! :(</h2>
+              )}
+
+              {this.patients.length > 0 && (
               <label>
                 Select Patient:
                 <select onInput={(e) => this.handleSelectChange(e)}>
@@ -82,7 +87,7 @@ export class XsalgovicPatientCard {
                     >{`${patient.firstName} ${patient.lastName}`}</option>
                   ))}
                 </select>
-              </label>
+              </label>)}
 
               {this.selectedPatient && (
                 <div>
